@@ -1,5 +1,7 @@
 package com.em.authservice.service;
 
+import com.em.authservice.dto.RegisterRequestDTO;
+import com.em.authservice.model.User;
 import com.em.authservice.util.JwtUtil;
 import com.em.authservice.dto.LoginRequestDTO;
 import io.jsonwebtoken.JwtException;
@@ -19,6 +21,23 @@ public class AuthService {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+    }
+    public User register(RegisterRequestDTO registerRequest) {
+        if (userService.existsByEmail(registerRequest.getEmail())) {
+            throw new RuntimeException("Email already exists: " + registerRequest.getEmail());
+        }
+
+        if (userService.existsByUsername(registerRequest.getUsername())) {
+            throw new RuntimeException("Username already exists: " + registerRequest.getUsername());
+        }
+
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setRole(registerRequest.getRole());
+
+        return userService.save(user);
     }
 
     public Optional<String> authenticate(LoginRequestDTO loginRequsetDTO) {
