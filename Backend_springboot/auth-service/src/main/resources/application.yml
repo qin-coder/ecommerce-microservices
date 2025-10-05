@@ -1,0 +1,28 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgresSQLDialect
+        format_sql: true
+    show-sql: true
+
+jwt:
+  secret: mySecretKeyForJWTGenerationInEcommerceProject2024
+  expiration: 86400000  # 24 hours in milliseconds
+
+logging:
+  level:
+    com.ecommerce.auth: DEBUG
+    org.springframework.security: DEBUG
