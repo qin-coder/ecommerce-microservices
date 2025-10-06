@@ -1,0 +1,18 @@
+### Create product
+POST http://localhost:8082/api/products
+Content-Type: application/json
+
+{
+  "name": "Ipad pro 6",
+  "description": "Ipad pro 6 from Apple",
+  "price": 1198.99,
+  "category": "Electronics",
+  "stockQuantity": 80,
+  "imageUrl": "",
+  "createAt": "2023-07-02T09:00:00.000Z",
+  "updateAt": "2025-07-03T09:00:00.000Z"
+}
+
+
+###
+
