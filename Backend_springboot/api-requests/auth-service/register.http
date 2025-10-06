@@ -1,5 +1,5 @@
 ### exam the register
-POST http://localhost:8081/register
+POST http://localhost:8081/api/auth/register
 Content-Type: application/json
 
 {

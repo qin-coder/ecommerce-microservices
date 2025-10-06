@@ -6,6 +6,7 @@
       <list>
         <option value="$PROJECT_DIR$/Backend_springboot/pom.xml" />
         <option value="$PROJECT_DIR$/Backend_springboot/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/Backend_springboot/product-service/pom.xml" />
       </list>
     </option>
   </component>

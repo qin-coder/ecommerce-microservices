@@ -1,5 +1,5 @@
 ### login request to retrive token
-POST http://localhost:8081/login
+POST http://localhost:8081/api/auth/login
 Content-Type: application/json
 
 {

@@ -19,9 +19,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/register",
-                                "/login", "/validate",
-                                "/health").permitAll()
+                        .requestMatchers("api/auth/register",
+                                "api/auth/login", "api/auth/validate",
+                                "api/auth/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
