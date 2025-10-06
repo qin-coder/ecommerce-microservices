@@ -81,5 +81,31 @@ public class ProductService {
         return products.map(product -> modelMapper.map(product, ProductResponseDTO.class));
     }
 
+    // update product
+    public ProductResponseDTO updateProduct(UUID id, ProductRequestDTO requestDTO) {
+
+        return productRepository.findById(id)
+                .map(existingProduct -> {
+                    if (!existingProduct.getName().equals(requestDTO.getName()) &&
+                            productRepository.existsByName(requestDTO.getName())) {
+                        throw new RuntimeException("Product name already exists: " + requestDTO.getName());
+                    }
+
+                    existingProduct.setName(requestDTO.getName());
+                    existingProduct.setDescription(requestDTO.getDescription());
+                    existingProduct.setPrice(requestDTO.getPrice());
+                    existingProduct.setCategory(requestDTO.getCategory());
+                    existingProduct.setStockQuantity(requestDTO.getStockQuantity());
+
+                    Product updatedProduct = productRepository.save(existingProduct);
+
+                    return modelMapper.map(updatedProduct, ProductResponseDTO.class);
+                })
+                .orElseThrow(() -> {
+                    return new RuntimeException("Product not found: " + id);
+                });
+    }
+
+
 
 }

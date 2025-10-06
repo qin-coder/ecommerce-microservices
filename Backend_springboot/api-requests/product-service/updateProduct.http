@@ -1,0 +1,14 @@
+### update product
+PUT http://localhost:8082/api/products/d0e8938a-2507-4787-aa80-12fd56e0269e
+Content-Type: application/json
+
+{
+  "name": "Ipad pro 8",
+  "description": "Ipad pro 8 from Apple",
+  "price": 1298.99,
+  "category": "Electronics",
+  "stockQuantity": 80,
+  "imageUrl": "",
+  "createAt": "2023-07-02T09:00:00.000Z",
+  "updateAt": "2025-07-03T09:00:00.000Z"
+}

@@ -71,4 +71,13 @@ public class ProductController {
 
         return ResponseEntity.ok(products);
     }
+    // update product
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> updateProduct(
+            @PathVariable UUID id,
+            @RequestBody @Valid ProductRequestDTO productRequest) {
+
+        ProductResponseDTO updatedProduct = productService.updateProduct(id, productRequest);
+        return ResponseEntity.ok(updatedProduct);
+    }
 }
