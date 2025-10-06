@@ -1,0 +1,4 @@
+### delete product
+DELETE http://localhost:8082/api/products/d0e8938a-2507-4787-aa80-12fd56e0269e
+
+###

@@ -105,6 +105,14 @@ public class ProductService {
                     return new RuntimeException("Product not found: " + id);
                 });
     }
+    // delete product
+    public void deleteProduct(UUID id) {
+        if (productRepository.existsById(id)) {
+            productRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Product not found: " + id);
+        }
+    }
 
 
 
