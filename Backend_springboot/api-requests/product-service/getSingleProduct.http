@@ -1,0 +1,5 @@
+### GET all products
+GET http://localhost:8082/api/products/7e2a85f9-6118-4a37-a28e-2ee9c7e8c85c
+
+
+###

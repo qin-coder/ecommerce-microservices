@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +31,19 @@ public class ProductService {
                 .map(product -> modelMapper.map(product,
                         ProductResponseDTO.class))
                 .collect(Collectors.toList());
+    }
+    //get single product
+    @Transactional
+    public ProductResponseDTO getProductById(UUID id) {
+        log.info("Fetching product by ID: {}", id);
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Product not found: {}", id);
+                    return new RuntimeException("Product not found: " + id);
+                });
+
+        return modelMapper.map(product, ProductResponseDTO.class);
     }
 
     //create product
