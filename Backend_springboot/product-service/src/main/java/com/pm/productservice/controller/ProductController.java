@@ -71,18 +71,44 @@ public class ProductController {
 
         return ResponseEntity.ok(products);
     }
+
     // update product
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable UUID id,
             @RequestBody @Valid ProductRequestDTO productRequest) {
 
-        ProductResponseDTO updatedProduct = productService.updateProduct(id, productRequest);
+        ProductResponseDTO updatedProduct =
+                productService.updateProduct(id, productRequest);
         return ResponseEntity.ok(updatedProduct);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // get all categories
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getAllCategories() {
+        List<String> categories = productService.getAllCategories();
+        return ResponseEntity.ok(categories);
+    }
+
+    // get products by category
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<ProductResponseDTO>> getProductsByCategory(
+            @PathVariable String category) {
+
+        List<ProductResponseDTO> products =
+                productService.getProductsByCategory(category);
+        return ResponseEntity.ok(products);
+    }
+
+    // health check
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("Product Service is healthy");
     }
 }

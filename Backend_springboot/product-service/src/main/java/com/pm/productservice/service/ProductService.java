@@ -114,6 +114,26 @@ public class ProductService {
         }
     }
 
+    // get all categories
+    public List<String> getAllCategories() {
+
+        return productRepository.findAll()
+                .stream()
+                .map(Product::getCategory)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+    // get products by category
+    public List<ProductResponseDTO> getProductsByCategory(String category) {
+        log.info("Fetching products by category: {}", category);
+
+        return productRepository.findByCategory(category)
+                .stream()
+                .map(product -> modelMapper.map(product, ProductResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
 
 }
