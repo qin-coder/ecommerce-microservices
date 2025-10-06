@@ -2,6 +2,7 @@ package com.pm.productservice.service;
 
 import com.pm.productservice.dto.ProductRequestDTO;
 import com.pm.productservice.dto.ProductResponseDTO;
+import com.pm.productservice.kafka.KafkaProducer;
 import com.pm.productservice.model.Product;
 import com.pm.productservice.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
+    private final KafkaProducer kafkaProducer;
 
     // get all products
     public List<ProductResponseDTO> getAllProducts() {
@@ -58,37 +61,48 @@ public class ProductService {
                 Product.class);
         //save the product
         Product savedProduct = productRepository.save(product);
-        log.info("Product created successfully: {}",
-                savedProduct.getId());
+        // Publish Kafka events (Protocol Buffers serialization)
+        kafkaProducer.sendProductCreated(savedProduct);
+
         return modelMapper.map(savedProduct,
                 ProductResponseDTO.class);
     }
     // Get product list (with pagination and search)
 
-    public Page<ProductResponseDTO> getProducts(Pageable pageable, String search, String category) {
+    public Page<ProductResponseDTO> getProducts(Pageable pageable,
+                                                String search,
+                                                String category) {
         Page<Product> products;
 
         if (search != null && category != null) {
-            products = productRepository.findByNameContainingAndCategory(search, category, pageable);
+            products =
+                    productRepository.findByNameContainingAndCategory(search, category, pageable);
         } else if (search != null) {
-            products = productRepository.findByNameContaining(search, pageable);
+            products =
+                    productRepository.findByNameContaining(search,
+                            pageable);
         } else if (category != null) {
-            products = productRepository.findByCategory(category, pageable);
+            products = productRepository.findByCategory(category,
+                    pageable);
         } else {
             products = productRepository.findAll(pageable);
         }
 
-        return products.map(product -> modelMapper.map(product, ProductResponseDTO.class));
+        return products.map(product -> modelMapper.map(product,
+                ProductResponseDTO.class));
     }
 
     // update product
-    public ProductResponseDTO updateProduct(UUID id, ProductRequestDTO requestDTO) {
+    public ProductResponseDTO updateProduct(UUID id,
+                                            ProductRequestDTO requestDTO) {
 
         return productRepository.findById(id)
                 .map(existingProduct -> {
+                    Product oldProduct = copyProduct(existingProduct);
                     if (!existingProduct.getName().equals(requestDTO.getName()) &&
                             productRepository.existsByName(requestDTO.getName())) {
-                        throw new RuntimeException("Product name already exists: " + requestDTO.getName());
+                        throw new RuntimeException("Product name " +
+                                "already exists: " + requestDTO.getName());
                     }
 
                     existingProduct.setName(requestDTO.getName());
@@ -97,18 +111,26 @@ public class ProductService {
                     existingProduct.setCategory(requestDTO.getCategory());
                     existingProduct.setStockQuantity(requestDTO.getStockQuantity());
 
-                    Product updatedProduct = productRepository.save(existingProduct);
+                    Product updatedProduct =
+                            productRepository.save(existingProduct);
 
-                    return modelMapper.map(updatedProduct, ProductResponseDTO.class);
+                    kafkaProducer.sendProductUpdated(oldProduct,
+                            updatedProduct);
+
+                    return modelMapper.map(updatedProduct,
+                            ProductResponseDTO.class);
                 })
                 .orElseThrow(() -> {
-                    return new RuntimeException("Product not found: " + id);
+                    return new RuntimeException("Product not found:" +
+                            " " + id);
                 });
     }
+
     // delete product
     public void deleteProduct(UUID id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
+            kafkaProducer.sendProductDeleted(id.toString());
         } else {
             throw new RuntimeException("Product not found: " + id);
         }
@@ -124,16 +146,35 @@ public class ProductService {
                 .sorted()
                 .collect(Collectors.toList());
     }
+
     // get products by category
     public List<ProductResponseDTO> getProductsByCategory(String category) {
         log.info("Fetching products by category: {}", category);
 
         return productRepository.findByCategory(category)
                 .stream()
-                .map(product -> modelMapper.map(product, ProductResponseDTO.class))
+                .map(product -> modelMapper.map(product,
+                        ProductResponseDTO.class))
                 .collect(Collectors.toList());
     }
 
+    private Product copyProduct(Product original) {
+        if (original == null) {
+            return null;
+        }
+
+        Product copy = new Product();
+        copy.setId(original.getId());
+        copy.setName(original.getName());
+        copy.setDescription(original.getDescription());
+        copy.setPrice(original.getPrice());
+        copy.setCategory(original.getCategory());
+        copy.setStockQuantity(original.getStockQuantity());
+        copy.setCreatedAt(original.getCreatedAt());
+        copy.setUpdatedAt(original.getUpdatedAt());
+
+        return copy;
+    }
 
 
 }

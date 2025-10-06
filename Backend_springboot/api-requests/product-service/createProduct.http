@@ -3,9 +3,9 @@ POST http://localhost:8082/api/products
 Content-Type: application/json
 
 {
-  "name": "Ipad pro 6",
-  "description": "Ipad pro 6 from Apple",
-  "price": 1198.99,
+  "name": "Ipad pro 9",
+  "description": "Ipad pro 9 from Apple",
+  "price": 1298.99,
   "category": "Electronics",
   "stockQuantity": 80,
   "imageUrl": "",

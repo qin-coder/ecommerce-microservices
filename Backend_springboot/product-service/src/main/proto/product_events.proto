@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package com.pm.productservice.events;
+
+option java_package = "com.pm.productservice.events";
+option java_outer_classname = "ProductEvents";
+
+message ProductCreatedEvent {
+  string product_id = 1;
+  string name = 2;
+  string description = 3;
+  string price = 4;
+  string category = 5;
+  int32 stock_quantity = 6;
+  string created_at = 7;
+  string event_type = 8;
+}
+
+message ProductUpdatedEvent {
+  string product_id = 1;
+  string name = 2;
+  string description = 3;
+  string old_price = 4;
+  string new_price = 5;
+  string category = 6;
+  int32 stock_quantity = 7;
+  string updated_at = 8;
+  string event_type = 9;
+}
+
+message ProductDeletedEvent {
+  string product_id = 1;
+  string deleted_at = 2;
+  string event_type = 3;
+}

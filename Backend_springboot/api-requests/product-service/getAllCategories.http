@@ -1,2 +1,2 @@
 ### GET all categories
-GET http://localhost:8082/api/products/health
+GET http://localhost:8082/api/products/categories
