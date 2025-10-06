@@ -7,9 +7,10 @@ import com.pm.productservice.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,15 +33,15 @@ public class ProductService {
                         ProductResponseDTO.class))
                 .collect(Collectors.toList());
     }
+
     //get single product
     @Transactional
     public ProductResponseDTO getProductById(UUID id) {
-        log.info("Fetching product by ID: {}", id);
-
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Product not found: {}", id);
-                    return new RuntimeException("Product not found: " + id);
+                    return new RuntimeException("Product not found:" +
+                            " " + id);
                 });
 
         return modelMapper.map(product, ProductResponseDTO.class);
@@ -48,8 +49,6 @@ public class ProductService {
 
     //create product
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
-        log.info("Creating new product: {}",
-                productRequestDTO.getName());
         // check if the product is existing
         if (productRepository.existsByName(productRequestDTO.getName())) {
             throw new RuntimeException("Product name already " +
@@ -63,6 +62,23 @@ public class ProductService {
                 savedProduct.getId());
         return modelMapper.map(savedProduct,
                 ProductResponseDTO.class);
+    }
+    // Get product list (with pagination and search)
+
+    public Page<ProductResponseDTO> getProducts(Pageable pageable, String search, String category) {
+        Page<Product> products;
+
+        if (search != null && category != null) {
+            products = productRepository.findByNameContainingAndCategory(search, category, pageable);
+        } else if (search != null) {
+            products = productRepository.findByNameContaining(search, pageable);
+        } else if (category != null) {
+            products = productRepository.findByCategory(category, pageable);
+        } else {
+            products = productRepository.findAll(pageable);
+        }
+
+        return products.map(product -> modelMapper.map(product, ProductResponseDTO.class));
     }
 
 

@@ -8,9 +8,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +49,26 @@ public class ProductController {
     public ResponseEntity<ProductResponseDTO> createProduct(
             @RequestBody @Valid ProductRequestDTO productRequest) {
 
-        ProductResponseDTO createdProduct = productService.createProduct(productRequest);
+        ProductResponseDTO createdProduct =
+                productService.createProduct(productRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+    }
+
+    // Get product list (with pagination and search)
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProductResponseDTO>> getProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(
+                "createdAt").descending());
+        Page<ProductResponseDTO> products =
+                productService.getProducts(pageable, search,
+                        category);
+
+        return ResponseEntity.ok(products);
     }
 }

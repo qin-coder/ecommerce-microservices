@@ -1,0 +1,5 @@
+### GET all products
+GET http://localhost:8082/api/products/search
+
+
+###
